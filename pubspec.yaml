@@ -34,6 +34,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.3
+  flutter_secure_storage: ^11.2.0
+  sqflite: ^2.4.6
+  path: ^1.9.1
+  sqflite_common_ffi: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +63,9 @@ flutter:
   uses-material-design: true
   assets:
     - images/
+    - images/question-mark.png
+    - images/login_light.png
+    - images/loginStop.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
