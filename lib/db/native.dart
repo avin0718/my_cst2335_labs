@@ -6,6 +6,9 @@ import 'package:path/path.dart' as p;
 
 QueryExecutor openConnection() {
   return LazyDatabase(() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      return NativeDatabase.memory();
+    }
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'contacts_drift.sqlite'));
     return NativeDatabase(file);

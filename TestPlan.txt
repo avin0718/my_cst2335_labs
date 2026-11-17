@@ -1,10 +1,10 @@
 ================================================================================
                      APPLICATION COMPREHENSIVE TEST PLAN
-         (Lab 4: Week 4, Lab 5: Week 5, Lab 6: Week 6, & Lab 7: Week 7 Integration)
+   (Lab 4: Week 4, Lab 5: Week 5, Lab 6: Week 6, Lab 7: Week 7, & Lab 8: Week 9 Integration)
 ================================================================================
 
 This document lists all control flows, `if / else` decision pathways, and testing
-procedures required to fully verify Lab 4, Lab 5, Lab 6, and Lab 7.
+procedures required to fully verify Lab 4, Lab 5, Lab 6, Lab 7, and Lab 8 (Week 9).
 
 --------------------------------------------------------------------------------
 PART A: LAB 4 - ALERTDIALOG, SNACKBAR & SHARED PREFERENCES CONTROL FLOWS
@@ -166,34 +166,25 @@ Control Flow Pathway 12: Add Contact Item to List
   - Contact entry appears immediately in the ListView as a `ListTile`.
   - All 4 TextFields are automatically cleared.
 
-Control Flow Pathway 13: Long-Press Contact Item -> AlertDialog Delete Prompt
---------------------------------------------------------------------------------
-- Code location: `ListTile.onLongPress` -> `_confirmDeleteContact(index)`
-- Condition: User long-presses a contact `ListTile` in the list.
-- Test Steps:
-  1. Press and hold down on "Eric Torunski" in the contact list.
-- Expected Outcome:
-  - An `AlertDialog` pops up asking: "Do you want to delete this item?"
-
 
 --------------------------------------------------------------------------------
 PART D: LAB 7 - SQL DATABASE PERSISTENCE (INSERT, LOAD & DELETE)
 --------------------------------------------------------------------------------
 
-Control Flow Pathway 14: SQL Database INSERT on Add Button
+Control Flow Pathway 13: SQL Database INSERT on Add Button
 --------------------------------------------------------------------------------
-- Code location: `ListPage._addContact()` -> `DatabaseHelper.instance.insertContact(newContact)`
+- Code location: `ListPage._addContact()` -> `db.saveContact()`
 - Condition: User clicks "Submit" to add a new contact.
 - Test Steps:
   1. Enter contact details and click "Submit".
 - Expected Outcome:
   - Predefined INSERT SQL query executes:
-    `INSERT INTO contacts (first_name, last_name, phone_number, email) VALUES (?, ?, ?, ?)`
-  - New contact record is stored in `contacts.db` SQLite database.
+    `INSERT INTO ContactTable (first_name, last_name, phone_number, email) VALUES (?, ?, ?, ?)`
+  - New contact record is stored in Drift SQLite database.
 
-Control Flow Pathway 15: SQL Database LOAD on Application Restart
+Control Flow Pathway 14: SQL Database LOAD on Application Restart
 --------------------------------------------------------------------------------
-- Code location: `ListPage._loadContactsFromDB()` -> `DatabaseHelper.instance.getContacts()`
+- Code location: `ListPage._loadContactsFromDB()` -> `db.getAllContacts().get()`
 - Condition: Application launches or restarts.
 - Test Steps:
   1. Add contacts to the list.
@@ -201,19 +192,57 @@ Control Flow Pathway 15: SQL Database LOAD on Application Restart
   3. Navigate to `ListPage`.
 - Expected Outcome:
   - `_loadContactsFromDB()` executes in `initState()`.
-  - Predefined SELECT SQL query executes: `SELECT * FROM contacts ORDER BY id DESC`.
+  - Predefined SELECT SQL query executes: `SELECT * FROM ContactTable ORDER BY id DESC`.
   - All previously saved contacts are loaded from SQLite and displayed in the ListView.
 
-Control Flow Pathway 16: SQL Database DELETE on Long Press Confirmation
+
 --------------------------------------------------------------------------------
-- Code location: `_confirmDeleteContact()` -> `DatabaseHelper.instance.deleteContact(id)`
-- Condition: User long-presses a contact and selects "Yes" on the AlertDialog.
+PART E: LAB 8 / WEEK 9 - RESPONSIVE MASTER-DETAIL PATTERN (PHONE vs TABLET/LANDSCAPE)
+--------------------------------------------------------------------------------
+
+Control Flow Pathway 15: Tablet / Desktop / Landscape Mode (Two-Pane Layout)
+--------------------------------------------------------------------------------
+- Code location: `ListPage.build()` -> `if (isWideScreen)`
+- Condition: App is running on tablet, desktop, or landscape mode (width >= 600 or landscape).
 - Test Steps:
-  1. Long-press a contact item.
-  2. Click "Yes" on the deletion AlertDialog.
-  3. Restart/re-launch the application.
+  1. Rotate device to landscape or run on desktop.
+  2. Tap on a contact item in the list (`onTap`).
 - Expected Outcome:
-  - Predefined DELETE SQL query executes: `DELETE FROM contacts WHERE id = ?`.
-  - Item is removed from the SQLite database.
-  - Upon restarting the application, the deleted contact does NOT appear.
+  - Layout displays a two-column split view (Master-Detail).
+  - Left pane displays the Form and Contact List.
+  - Right pane displays `DetailsWidget` with Item Name, Database ID, Phone, and Email.
+
+Control Flow Pathway 16: Phone / Portrait Mode (Single-Pane Navigation)
+--------------------------------------------------------------------------------
+- Code location: `ListPage._onContactTapped()` -> `if (!isWideScreen)`
+- Condition: App is running on phone or portrait mode.
+- Test Steps:
+  1. Hold device in portrait mode.
+  2. Tap on a contact item in the list (`onTap`).
+- Expected Outcome:
+  - App navigates to a new full-screen `Scaffold` displaying `DetailsWidget`, replacing the list view.
+
+Control Flow Pathway 17: Details Screen "Delete" Button Tapped
+--------------------------------------------------------------------------------
+- Code location: `ListPage._deleteContact()` -> `db.deleteContact(id)`
+- Condition: User clicks the "Delete" button inside `DetailsWidget`.
+- Test Steps:
+  1. Select a contact item to open Details view.
+  2. Tap the red "Delete" button.
+- Expected Outcome:
+  - `db.deleteContact(id)` removes the item from the SQLite database.
+  - Contact is removed from `_contacts` list.
+  - `_selectedContact` is set to `null`, clearing the details pane/screen.
+
+Control Flow Pathway 18: Details Screen "Close" Button Tapped
+--------------------------------------------------------------------------------
+- Code location: `ListPage._closeDetails()` -> `setState(() { _selectedContact = null; })`
+- Condition: User clicks the "Close" button inside `DetailsWidget`.
+- Test Steps:
+  1. Select a contact item to open Details view.
+  2. Tap the "Close" button.
+- Expected Outcome:
+  - `_selectedContact` is set back to `null`.
+  - In landscape mode, the right details pane closes/clears.
+  - In portrait mode, the details screen pops back to the contact list view.
 ================================================================================

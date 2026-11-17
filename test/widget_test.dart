@@ -8,6 +8,7 @@ import 'package:lab2/pages/list_page.dart';
 import 'package:lab2/pages/login_page.dart';
 import 'package:lab2/pages/profile_page.dart';
 import 'package:lab2/repository/profile_repository.dart';
+import 'package:lab2/widgets/details_widget.dart';
 
 void main() {
   setUpAll(() {
@@ -82,8 +83,12 @@ void main() {
     expect(find.text('Welcome Back TestUser'), findsNWidgets(2));
   });
 
-  testWidgets('ListPage adds contact, clears fields, and deletes on long press',
+  testWidgets('ListPage adds contact, opens details on tap, and deletes via DetailsWidget',
       (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     await tester.pumpWidget(
       const MaterialApp(
         home: ListPage(),
@@ -93,7 +98,7 @@ void main() {
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 200));
     });
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // Fill in text fields
     await tester.enterText(find.byType(TextField).at(0), 'Eric');
@@ -107,28 +112,31 @@ void main() {
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 200));
     });
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // Verify contact appears in list
     expect(find.text('Eric Torunski'), findsOneWidget);
-    expect(find.text('613 123-4567 • torunse@algonquincollege.com'), findsOneWidget);
 
-    // Long press on contact to show delete dialog
-    await tester.longPress(find.text('Eric Torunski'));
-    await tester.pump();
+    // Tap gesture on contact item to view Details
+    await tester.tap(find.text('Eric Torunski'));
+    await tester.pumpAndSettle();
 
-    expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Do you want to delete this item?'), findsOneWidget);
+    // Verify DetailsWidget is displayed with Item Name and Database ID
+    expect(find.byType(DetailsWidget), findsOneWidget);
+    expect(find.text('Item Details'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'Delete'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Close'), findsOneWidget);
 
-    // Tap Yes to delete
-    await tester.tap(find.text('Yes'));
+    // Tap Delete button on Details page
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'), warnIfMissed: false);
     await tester.pumpAndSettle();
 
     await tester.runAsync(() async {
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 200));
     });
+    await tester.pumpAndSettle();
 
-    // Verify contact is deleted
+    // Verify contact is deleted and details widget is closed
     expect(find.text('Eric Torunski'), findsNothing);
   });
 }

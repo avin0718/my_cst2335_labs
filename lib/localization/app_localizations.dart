@@ -42,6 +42,13 @@ class AppLocalizations {
       'Delete Contact': 'Eliminar contacto',
       'Do you want to delete this item?':
           '¿Desea eliminar este elemento?',
+      'Item Details': 'Detalles del elemento',
+      'Item Name': 'Nombre del elemento',
+      'Database ID': 'ID de base de datos',
+      'Delete': 'Eliminar',
+      'Close': 'Cerrar',
+      'Select a contact to view details':
+          'Seleccione un contacto para ver los detalles',
     },
     'fr': {
       'Flutter Demo Home Page': 'Page d\'accueil Flutter Demo',
@@ -82,6 +89,13 @@ class AppLocalizations {
       'Delete Contact': 'Supprimer le contact',
       'Do you want to delete this item?':
           'Voulez-vous supprimer cet élément ?',
+      'Item Details': 'Détails de l\'élément',
+      'Item Name': 'Nom de l\'élément',
+      'Database ID': 'ID de base de données',
+      'Delete': 'Supprimer',
+      'Close': 'Fermer',
+      'Select a contact to view details':
+          'Sélectionnez un contact pour voir les détails',
     },
   };
 
