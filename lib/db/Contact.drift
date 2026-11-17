@@ -1,0 +1,12 @@
+flutter run -d windowsCREATE TABLE ContactTable (
+    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    email TEXT NOT NULL
+) As ContactData;
+
+saveContact: INSERT INTO ContactTable (first_name, last_name, phone_number, email) VALUES (:first_name, :last_name, :phone_number, :email);
+getAllContacts: SELECT * FROM ContactTable ORDER BY id DESC;
+getContactById: SELECT * FROM ContactTable WHERE id = :id;
+deleteContact: DELETE FROM ContactTable WHERE id = :id;

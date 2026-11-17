@@ -1,0 +1,219 @@
+================================================================================
+                     APPLICATION COMPREHENSIVE TEST PLAN
+         (Lab 4: Week 4, Lab 5: Week 5, Lab 6: Week 6, & Lab 7: Week 7 Integration)
+================================================================================
+
+This document lists all control flows, `if / else` decision pathways, and testing
+procedures required to fully verify Lab 4, Lab 5, Lab 6, and Lab 7.
+
+--------------------------------------------------------------------------------
+PART A: LAB 4 - ALERTDIALOG, SNACKBAR & SHARED PREFERENCES CONTROL FLOWS
+--------------------------------------------------------------------------------
+
+Control Flow Pathway 1: Initial App Startup - Saved Credentials Found
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._loadSavedData()` -> `if (credentialsLoaded)`
+- Condition: `savedUsername` and `savedPassword` exist in EncryptedSharedPreferences.
+- Test Steps:
+  1. Launch the application after previously saving credentials ("Yes" choice).
+  2. Observe `_loadSavedData()` execution in `initState()`.
+- Expected Outcome:
+  - `if (credentialsLoaded)` evaluates to TRUE.
+  - Username and Password fields are automatically pre-populated with saved values.
+  - A SnackBar appears displaying: "Previous login name and password loaded".
+
+Control Flow Pathway 2: Initial App Startup - No Saved Credentials Found
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._loadSavedData()` -> `if (credentialsLoaded)` (ELSE branch)
+- Condition: No credentials exist in EncryptedSharedPreferences (or "No" was chosen).
+- Test Steps:
+  1. Launch the application for the first time or after clearing credentials.
+  2. Observe `_loadSavedData()` execution in `initState()`.
+- Expected Outcome:
+  - `if (credentialsLoaded)` evaluates to FALSE.
+  - Username and Password fields remain empty.
+  - No "Previous login name and password loaded" SnackBar is shown.
+
+Control Flow Pathway 3: Login Attempt - Invalid / Empty Input Validation
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._handleLogin()` -> `if (_formKey.currentState!.validate())`
+- Condition: User clicks "Login" while Username or Password field is empty.
+- Test Steps:
+  1. Leave Username or Password field empty.
+  2. Click the "Login" button.
+- Expected Outcome:
+  - Validation fails (FALSE branch).
+  - An inline error message appears: "Please enter username and password".
+  - AlertDialog is NOT displayed.
+
+Control Flow Pathway 4: Login Attempt - Valid Input -> AlertDialog Shown
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._handleLogin()` -> `if (_formKey.currentState!.validate())` (TRUE branch)
+- Condition: User enters Username and password "ASDF" and clicks "Login".
+- Test Steps:
+  1. Enter "JohnDoe" as Username and "ASDF" as Password.
+  2. Click the "Login" button.
+- Expected Outcome:
+  - Validation passes (TRUE branch).
+  - Light bulb image (`images/login_light.png`) displays.
+  - An AlertDialog pops up asking:
+    "Would you like to save your username and password for next time?"
+  - Dialog presents two action choices: "Yes" and "No".
+
+Control Flow Pathway 5: AlertDialog "Yes" Action Chosen
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._handleLogin()` -> `onPressed: Yes`
+- Condition: User clicks "Yes" on the AlertDialog.
+- Test Steps:
+  1. When AlertDialog appears, click "Yes".
+- Expected Outcome:
+  - `widget.repository.saveCredentials(username, password)` is called.
+  - Username, password, and image state are encrypted and stored in EncryptedSharedPreferences.
+  - SnackBar appears showing: "Welcome Back JohnDoe".
+  - App navigates to `ProfilePage`.
+
+Control Flow Pathway 6: AlertDialog "No" Action Chosen
+--------------------------------------------------------------------------------
+- Code location: `LoginPage._handleLogin()` -> `onPressed: No`
+- Condition: User clicks "No" on the AlertDialog.
+- Test Steps:
+  1. When AlertDialog appears, click "No".
+- Expected Outcome:
+  - `widget.repository.clearCredentials()` is called.
+  - EncryptedSharedPreferences entries for username and password are deleted.
+  - SnackBar appears showing: "Welcome Back JohnDoe".
+  - App navigates to `ProfilePage`.
+
+
+--------------------------------------------------------------------------------
+PART B: LAB 5 - PROFILE PAGE, URL LAUNCHERS & REPOSITORY CONTROL FLOWS
+--------------------------------------------------------------------------------
+
+Control Flow Pathway 7: Profile Page Loaded & Data Pre-populated
+--------------------------------------------------------------------------------
+- Code location: `ProfilePage.initState()` -> `widget.repository.loadData()`
+- Condition: Navigating to `ProfilePage`.
+- Test Steps:
+  1. Log in successfully to reach `ProfilePage`.
+  2. Observe top header and text fields.
+- Expected Outcome:
+  - Top Text widget displays: "Welcome Back JohnDoe".
+  - First Name, Last Name, Phone Number, and Email fields populate with values
+    previously stored in `ProfileRepository`.
+
+Control Flow Pathway 8: Profile Field Input & Real-Time Auto-Save
+--------------------------------------------------------------------------------
+- Code location: `TextEditingController.addListener()` -> `widget.repository.saveData()`
+- Condition: User types or modifies text in any of the 4 ProfilePage text fields.
+- Test Steps:
+  1. Type "John" in First Name field.
+  2. Type "Smith" in Last Name field.
+  3. Type "1234567890" in Phone Number field.
+  4. Type "john.smith@example.com" in Email field.
+- Expected Outcome:
+  - Each keypress invokes `saveData()` via controller listener.
+  - Values are instantly saved into EncryptedSharedPreferences.
+
+Control Flow Pathway 9: Launch Mail (mailto: URL / Outlook)
+--------------------------------------------------------------------------------
+- Code location: `ProfilePage._launchMail()`
+- Condition: Mail button tapped.
+- Test Steps:
+  1. Enter an email in the Email address field.
+  2. Tap the Mail button (envelope icon).
+- Expected Outcome:
+  - Launches Microsoft Outlook directly on Windows or default mail app.
+
+Control Flow Pathway 10: Phone/SMS Launch on Desktop / Unsupported Devices
+--------------------------------------------------------------------------------
+- Code location: `ProfilePage._launchUrlScheme()` -> `if (isDesktop && isPhoneOrSms)`
+- Condition: Phone or SMS button tapped on a desktop device (Windows/macOS/Linux).
+- Test Steps:
+  1. Tap Call or SMS button while running on Windows.
+- Expected Outcome:
+  - `isDesktop && isPhoneOrSms` evaluates to TRUE.
+  - An `AlertDialog` pops up with title "Error" and message:
+    "URL is not supported on this device."
+
+
+--------------------------------------------------------------------------------
+PART C: LAB 6 - CONTACT LIST (LISTVIEW & CONTROL FLOWS)
+--------------------------------------------------------------------------------
+
+Control Flow Pathway 11: Contact List Empty State Display
+--------------------------------------------------------------------------------
+- Code location: `ListPage.build()` -> `if (_contacts.isEmpty)`
+- Condition: No contacts have been added yet to the list.
+- Test Steps:
+  1. Open `ListPage` from the contacts icon in the AppBar.
+  2. Observe the area below the green input box.
+- Expected Outcome:
+  - `if (_contacts.isEmpty)` evaluates to TRUE.
+  - Renders message: "There are no contacts in the list".
+
+Control Flow Pathway 12: Add Contact Item to List
+--------------------------------------------------------------------------------
+- Code location: `ListPage._addContact()`
+- Condition: User enters details in TextFields and clicks "Submit".
+- Test Steps:
+  1. Enter "Eric" in First name.
+  2. Enter "Torunski" in Last name.
+  3. Enter "613 123-4567" in Phone Number.
+  4. Enter "torunse@algonquincollege.com" in Email Address.
+  5. Click the "Submit" button.
+- Expected Outcome:
+  - New `Contact` is created and added to `_contacts` list.
+  - Contact entry appears immediately in the ListView as a `ListTile`.
+  - All 4 TextFields are automatically cleared.
+
+Control Flow Pathway 13: Long-Press Contact Item -> AlertDialog Delete Prompt
+--------------------------------------------------------------------------------
+- Code location: `ListTile.onLongPress` -> `_confirmDeleteContact(index)`
+- Condition: User long-presses a contact `ListTile` in the list.
+- Test Steps:
+  1. Press and hold down on "Eric Torunski" in the contact list.
+- Expected Outcome:
+  - An `AlertDialog` pops up asking: "Do you want to delete this item?"
+
+
+--------------------------------------------------------------------------------
+PART D: LAB 7 - SQL DATABASE PERSISTENCE (INSERT, LOAD & DELETE)
+--------------------------------------------------------------------------------
+
+Control Flow Pathway 14: SQL Database INSERT on Add Button
+--------------------------------------------------------------------------------
+- Code location: `ListPage._addContact()` -> `DatabaseHelper.instance.insertContact(newContact)`
+- Condition: User clicks "Submit" to add a new contact.
+- Test Steps:
+  1. Enter contact details and click "Submit".
+- Expected Outcome:
+  - Predefined INSERT SQL query executes:
+    `INSERT INTO contacts (first_name, last_name, phone_number, email) VALUES (?, ?, ?, ?)`
+  - New contact record is stored in `contacts.db` SQLite database.
+
+Control Flow Pathway 15: SQL Database LOAD on Application Restart
+--------------------------------------------------------------------------------
+- Code location: `ListPage._loadContactsFromDB()` -> `DatabaseHelper.instance.getContacts()`
+- Condition: Application launches or restarts.
+- Test Steps:
+  1. Add contacts to the list.
+  2. Restart/re-launch the application.
+  3. Navigate to `ListPage`.
+- Expected Outcome:
+  - `_loadContactsFromDB()` executes in `initState()`.
+  - Predefined SELECT SQL query executes: `SELECT * FROM contacts ORDER BY id DESC`.
+  - All previously saved contacts are loaded from SQLite and displayed in the ListView.
+
+Control Flow Pathway 16: SQL Database DELETE on Long Press Confirmation
+--------------------------------------------------------------------------------
+- Code location: `_confirmDeleteContact()` -> `DatabaseHelper.instance.deleteContact(id)`
+- Condition: User long-presses a contact and selects "Yes" on the AlertDialog.
+- Test Steps:
+  1. Long-press a contact item.
+  2. Click "Yes" on the deletion AlertDialog.
+  3. Restart/re-launch the application.
+- Expected Outcome:
+  - Predefined DELETE SQL query executes: `DELETE FROM contacts WHERE id = ?`.
+  - Item is removed from the SQLite database.
+  - Upon restarting the application, the deleted contact does NOT appear.
+================================================================================
